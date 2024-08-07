@@ -1,3 +1,5 @@
+import { Toaster } from 'react-hot-toast';
+
 export function Toast() {
-  return null;
+  return <Toaster position='bottom-right' reverseOrder={false} />;
 }

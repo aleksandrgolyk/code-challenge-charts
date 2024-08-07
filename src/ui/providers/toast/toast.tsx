@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 
+import { Toast } from '@/components/Toast';
 import { ToastType } from './types';
 
 interface ToastProps {
@@ -21,7 +22,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   return (
     <ToastContext.Provider value={{ renderToast }}>
       {children}
-      <Toaster position='bottom-right' reverseOrder={false} />
+      <Toast />
     </ToastContext.Provider>
   );
 }
