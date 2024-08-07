@@ -22,6 +22,14 @@ export function ChartBlock() {
   // Create reset function
   const resetData = useResetData(originalData, setData, setMinValue, setMaxValue);
 
+  const handleMinValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setMinValue(e.target.value === '' ? null : parseFloat(e.target.value));
+  };
+
+  const handleMaxValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setMaxValue(e.target.value === '' ? null : parseFloat(e.target.value));
+  };
+
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -39,7 +47,7 @@ export function ChartBlock() {
             type='number'
             className='w-24 h-8 text-sm'
             value={minValue !== null ? minValue : ''}
-            onChange={e => setMinValue(e.target.value === '' ? null : parseFloat(e.target.value))}
+            onChange={handleMinValueChange}
           />
         </div>
         <div className='flex flex-col mx-4'>
@@ -48,7 +56,7 @@ export function ChartBlock() {
             type='number'
             className='w-24 h-8 text-sm'
             value={maxValue !== null ? maxValue : ''}
-            onChange={e => setMaxValue(e.target.value === '' ? null : parseFloat(e.target.value))}
+            onChange={handleMaxValueChange}
           />
         </div>
         <div className='flex flex-col mx-4 pt-4 w-100'>
