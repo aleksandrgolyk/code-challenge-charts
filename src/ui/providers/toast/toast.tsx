@@ -1,4 +1,6 @@
 import { createContext, useCallback, useContext } from 'react';
+import toast, { Toaster } from 'react-hot-toast';
+
 import { ToastType } from './types';
 
 interface ToastProps {
@@ -8,17 +10,18 @@ interface ToastProps {
 const ToastContext = createContext<ToastProps | null>(null);
 
 export function ToastProvider({ children }: { children: React.ReactNode }) {
-  // eslint-disable-next-line
   const renderToast = useCallback((type: ToastType, message: string) => {
-    console.error('TODO: implement the renderToast(type, message)');
+    if (type === 'success') {
+      toast.success(message);
+    } else {
+      toast.error(message);
+    }
   }, []);
 
   return (
-    <ToastContext.Provider
-      value={{
-        renderToast,
-      }}>
+    <ToastContext.Provider value={{ renderToast }}>
       {children}
+      <Toaster position='bottom-right' reverseOrder={false} />
     </ToastContext.Provider>
   );
 }

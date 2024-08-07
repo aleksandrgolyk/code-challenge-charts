@@ -1,13 +1,51 @@
+import { useEffect, useState } from 'react';
+
 import { BarChart } from '../components/Chart';
+import { ChartDataType } from './types';
 import { useToastContext } from '../providers/toast';
 
-// TODO replace this with a fetch request to /api/data
-const mockData = { datasetOne: [75, -30, -45, -90, 20, 30], datasetTwo: [15, -15, 25, -60, 80, 90] };
-
 export function ChartBlock() {
-  // TODO show success/failure toast message
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { renderToast } = useToastContext();
+  const [data, setData] = useState<ChartDataType | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch('http://localhost:3001/api/data/chart-data');
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const fetchedData = await response.json();
+        if (fetchedData.status === 'error') {
+          renderToast('error', 'Data fetching error!');
+        } else {
+          setData(fetchedData);
+          renderToast('success', 'Data fetched successfully!');
+        }
+      } catch (error) {
+        if (error instanceof Error) {
+          setError(error);
+          renderToast('error', error.message);
+        } else {
+          renderToast('error', 'An unknown error occurred');
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [renderToast]);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error.message}</div>;
+  }
 
   return (
     <div>
@@ -35,12 +73,12 @@ export function ChartBlock() {
             datasets: [
               {
                 label: 'Dataset 1',
-                data: mockData.datasetOne,
+                data: data?.data?.datasetOne ?? [],
                 backgroundColor: 'rgb(255, 99, 132)',
               },
               {
                 label: 'Dataset 2',
-                data: mockData.datasetTwo,
+                data: data?.data?.datasetTwo ?? [],
                 backgroundColor: 'rgb(54, 162, 235)',
               },
             ],
