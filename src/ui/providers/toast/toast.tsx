@@ -1,8 +1,8 @@
 import { createContext, useCallback, useContext } from 'react';
-import toast, { Toaster } from 'react-hot-toast';
 
 import { Toast } from '@/components/Toast';
 import { ToastType } from './types';
+import toast from 'react-hot-toast';
 
 interface ToastProps {
   renderToast: (type: ToastType, message: string) => void;

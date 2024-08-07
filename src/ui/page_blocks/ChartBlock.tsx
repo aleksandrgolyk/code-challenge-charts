@@ -1,43 +1,26 @@
-import { useEffect, useState } from 'react';
+import { useFilterData, useResetData } from './helpers/filterAndResetData';
 
 import { BarChart } from '../components/Chart';
 import { ChartDataType } from './types';
-import { useToastContext } from '../providers/toast';
+import { useFetchData } from './hooks/useFetchData';
+import { useState } from 'react';
 
 export function ChartBlock() {
-  const { renderToast } = useToastContext();
   const [data, setData] = useState<ChartDataType | null>(null);
+  const [originalData, setOriginalData] = useState<ChartDataType | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const [minValue, setMinValue] = useState<number | null>(null);
+  const [maxValue, setMaxValue] = useState<number | null>(null);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch('http://localhost:3001/api/data/chart-data');
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        const fetchedData = await response.json();
-        if (fetchedData.status === 'error') {
-          renderToast('error', 'Data fetching error!');
-        } else {
-          setData(fetchedData);
-          renderToast('success', 'Data fetched successfully!');
-        }
-      } catch (error) {
-        if (error instanceof Error) {
-          setError(error);
-          renderToast('error', error.message);
-        } else {
-          renderToast('error', 'An unknown error occurred');
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
+  // Fetch data
+  useFetchData(setData, setOriginalData, setLoading, setError);
 
-    fetchData();
-  }, [renderToast]);
+  // Filter data based on min and max values
+  useFilterData(originalData, minValue, maxValue, setData);
+
+  // Create reset function
+  const resetData = useResetData(originalData, setData, setMinValue, setMaxValue);
 
   if (loading) {
     return <div>Loading...</div>;
@@ -52,14 +35,26 @@ export function ChartBlock() {
       <div className='mb-12 flex items-center'>
         <div className='flex flex-col mx-4'>
           <span className='text-sm'>Min</span>
-          <input type='number' className='w-24 h-8 text-sm' />
+          <input
+            type='number'
+            className='w-24 h-8 text-sm'
+            value={minValue !== null ? minValue : ''}
+            onChange={e => setMinValue(e.target.value === '' ? null : parseFloat(e.target.value))}
+          />
         </div>
         <div className='flex flex-col mx-4'>
           <span className='text-sm'>Max</span>
-          <input type='number' className='w-24 h-8 text-sm' />
+          <input
+            type='number'
+            className='w-24 h-8 text-sm'
+            value={maxValue !== null ? maxValue : ''}
+            onChange={e => setMaxValue(e.target.value === '' ? null : parseFloat(e.target.value))}
+          />
         </div>
         <div className='flex flex-col mx-4 pt-4 w-100'>
-          <button className='bg-blue-600 flex justify-center items-center h-10 text-center text-white border focus:outline-none focus:ring-4 font-sm rounded-lg text-sm px-5 py-1.9'>
+          <button
+            className='bg-blue-600 flex justify-center items-center h-10 text-center text-white border focus:outline-none focus:ring-4 font-sm rounded-lg text-sm px-5 py-1.9'
+            onClick={resetData}>
             Reset
           </button>
         </div>
